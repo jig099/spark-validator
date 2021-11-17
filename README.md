@@ -6,3 +6,5 @@ pip install /path/to/wheelfile.whl
 
  ## Import library
 import sparkvalidator
+from sparkvalidator import myfunctions
+
