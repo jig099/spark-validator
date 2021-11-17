@@ -1,0 +1,8 @@
+README.md
+setup.py
+sparkvalidator/__init__.py
+sparkvalidator/myfunctions.py
+sparkvalidator.egg-info/PKG-INFO
+sparkvalidator.egg-info/SOURCES.txt
+sparkvalidator.egg-info/dependency_links.txt
+sparkvalidator.egg-info/top_level.txt
