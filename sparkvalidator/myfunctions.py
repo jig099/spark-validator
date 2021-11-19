@@ -99,6 +99,7 @@ def stratified_sampling():
 
 ### Profiler APIs ###
 ##https://docs.python.org/3/library/profile.html##
+##pyspark profiler source code: https://spark.apache.org/docs/2.3.1/api/python/_modules/pyspark/profiler.html##
 ## run the cprofile and analyze the result
 def profiler(user_file):
     cProfile.run('re.compile("foo|bar")')
