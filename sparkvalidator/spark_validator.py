@@ -25,7 +25,7 @@ class spark_validator(sampler):
     return 
  
    def workflow():
-       sampler
+    #    sampler
    # a, b
    # User has to self define
 #    spark_validator.join()
