@@ -1,7 +1,7 @@
 
 from functools import reduce
 from itertools import groupby
-from operator import (itemgetter,add)
+from operator import (itemgetter, add)
 
 
 def reduceByKey(func, iterable):
@@ -13,9 +13,10 @@ def reduceByKey(func, iterable):
     3. For each pair yield (key, reduce(func, last element of each grouper))
     """
     # iterable.groupBy(_._1).map(l => (l._1, l._2.map(_._2).reduce(func)))
-    return ( (k, reduce(func, (x[1] for x in xs)))
-                 for (k,xs) in groupby(sorted(iterable, key=itemgetter(0)), itemgetter(0))
-        )
+    return ((k, reduce(func, (x[1] for x in xs)))
+            for (k, xs) in groupby(sorted(iterable, key=itemgetter(0)), itemgetter(0))
+            )
+
 
 if __name__ == '__main__':
     # Example from https://www.safaribooksonline.com/library/view/learning-spark/9781449359034/ch04.html#idp7549488
