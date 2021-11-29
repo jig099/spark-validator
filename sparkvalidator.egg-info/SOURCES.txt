@@ -1,7 +1,11 @@
 README.md
 setup.py
 sparkvalidator/__init__.py
-sparkvalidator/myfunctions.py
+sparkvalidator/functions.py
+sparkvalidator/parser.py
+sparkvalidator/profiler.py
+sparkvalidator/sampler.py
+sparkvalidator/spark_validator.py
 sparkvalidator.egg-info/PKG-INFO
 sparkvalidator.egg-info/SOURCES.txt
 sparkvalidator.egg-info/dependency_links.txt

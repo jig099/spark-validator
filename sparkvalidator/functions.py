@@ -2,6 +2,7 @@ from pyspark.sql.functions import col, asc, desc
 from functools import reduce
 from itertools import groupby
 from operator import (itemgetter, add)
+import pandas 
 
 ### Translation APIs ###
 ## basic operations on dataframes ##
@@ -280,7 +281,7 @@ def filter(df, condition: str):
 
 ## utility functions ##
 def compare(ps_result, pd_result, f_name):
-    if isinstance(pd_result, pd.DataFrame):
+    if isinstance(pd_result, pandas.dataFrame):
         ps_m_result = ps_result.toPandas()
         comparison = pd_result.equals(ps_m_result)
     else:

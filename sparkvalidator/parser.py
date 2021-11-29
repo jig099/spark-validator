@@ -1,12 +1,6 @@
 import ast
 from ast import NodeTransformer, fix_missing_locations
 import astunparse
-'''
-import inspect
-import test_program1
-source = inspect.getsource(test_program1)
-'''
-
 
 class Transform_Read(NodeTransformer):
     def __init__(self):
@@ -95,17 +89,9 @@ class Transform_Operation(NodeTransformer):
         else:
             return node
 
+def ()
 tree = ast.parse(open('tests/user_program/test_program1.py').read())
-'''
-print(tree.body)
-print(tree.body[1].body[1].targets[0].id)
-print(type(tree.body[1].body[1].targets[0].ctx))
-assert(isinstance(tree.body[1].body[1].targets[0].ctx, ast.Store))
-#print(ast.dump(tree))
-assert(isinstance(tree.body[1], ast.FunctionDef))
 
-print(ast.dump(tree))
-'''
 t1 = Transform_Read()
 new_tree = fix_missing_locations(t1.visit(tree))
 print(astunparse.unparse(new_tree))
