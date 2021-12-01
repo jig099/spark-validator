@@ -117,7 +117,8 @@ class Transform_Operation(NodeTransformer):
     def __init__(self, dataframes) -> None:
         super().__init__()
         self.dataframes_ = dataframes
-        
+    
+    def 
     def visit_Assign(self, node: ast.Assign):
         '''
         Assume each spark function call is assigned to some variable
@@ -129,27 +130,38 @@ class Transform_Operation(NodeTransformer):
         '''
         if isinstance(node.value, ast.Call) and \
             isinstance(node.value.func, ast.Attribute) and \
-            isinstance(node.value.func.value, ast.Name) and \
-            node.value.func.attr in implemented_functions:
+            isinstance(node.value.func.value, ast.Name):
             #node.value.func.value.id in self.dataframes_ and 
             
-            var_name = node.targets[0].id
-            func_name = node.value.func.attr
-            calling_df = node.value.func.value.id
-            args = node.value.args
-            args.insert(0, ast.Name(id=calling_df, ctx=ast.Load()))
-           
-            new_assign = ast.Assign(targets=[ast.Name(id=var_name, ctx=ast.Store)], \
-                                    value=ast.Call(func=ast.Name(id=func_name, ctx=ast.Load()), args=args, keywords=[]))
-            print(astunparse.unparse(new_assign))
-            '''args=[Name(id='t1', ctx=Load()), Name(id='t2', ctx=Load())]
-            Assign(targets=[Name(id='a', ctx=Store())], 
-                value=Call(func=Attribute(value=Name(id='a', ctx=Load()), attr='foo', ctx=Load()), args=[], keywords=[]))
-            value=Call(func=Name(id='foo', ctx=Load()), args=[], keywords=[])'''
-            return new_assign
-        # elif node.value.func.value.func.value.attr == 'rdd' and \
-        #     node.value.func.value.func.attr in implemented_functions:
+            if node.value.func.attr in implemented_functions:
+                var_name = node.targets[0].id
+                func_name = node.value.func.attr
+                calling_df = node.value.func.value.id
+                args = node.value.args
+                args.insert(0, ast.Name(id=calling_df, ctx=ast.Load()))
+            
+                new_assign = ast.Assign(targets=[ast.Name(id=var_name, ctx=ast.Store)], \
+                                        value=ast.Call(func=ast.Name(id=func_name, ctx=ast.Load()), args=args, keywords=[]))
+                return new_assign
+            elif 
 
+                return new_assign
+            # elif node.value.func.value.func.value.attr == 'rdd' and \
+            #     node.value.func.value.func.attr in implemented_functions:
+            '''Call(func=
+                    Attribute(value=
+                                Call(func=
+                                        Attribute(value=
+                                                        Attribute(value=
+                                                                    Name(id='df'), 
+                                                                attr='rdd'),
+                                                    attr='map'
+                                                    ), 
+                                    args=[]), 
+                                attr='toDF'
+                            ),
+                    args=[])
+            '''
         else:
             return node
 
