@@ -118,7 +118,53 @@ class Transform_Operation(NodeTransformer):
         super().__init__()
         self.dataframes_ = dataframes
     
-    def 
+    def is_rdd_func(self, node):
+        '''Call(func=
+                    Attribute(value=
+                                Call(func=
+                                        Attribute(value=
+                                                        Attribute(value=
+                                                                    Name(id='df'), 
+                                                                attr='rdd'),
+                                                    attr='map'
+                                                    ), 
+                                    args=[Name(id='f', ctx=Load())]), 
+                                attr='toDF'
+                            ),
+                    args=[List(elts=[], ctx=Load()])
+        '''
+        arg_list = []
+        node_ = node
+        while isinstance(node_, ast.Call) and \
+              isinstance(node_.func, ast.Attribute):
+            
+            if isinstance(node_.func.value, ast.Call):
+                call_dict = {
+                    'args' : node_.args,
+                    'keywords' : node_.keywords
+                }
+                attr_dict = {
+                    'attr' : node_.func.attr,
+                    'ctx' : node_.func.ctx
+                }
+                arg_list.append(call_dict)
+                arg_list.append(attr_dict)
+                node_ = node_.func.value
+                
+            elif isinstance(node_.func.value, ast.Attribute) and \
+                 node_.func.value.attr == 'rdd' and node_.func.attr in implemented_functions:
+                var_name = node_.func.value.value.id
+                print(1)
+                call = ast.Call(func=ast.Name(id=node_.func.attr, ctx=ast.Load()), \
+                         args=[ast.Name(id=var_name, ctx=ast.Load()), \
+                               node_.args[0], \
+                               arg_list[0]['args'][0]], \
+                        keywords=[])
+                return call
+            else:
+                break
+        return None
+
     def visit_Assign(self, node: ast.Assign):
         '''
         Assume each spark function call is assigned to some variable
@@ -132,7 +178,7 @@ class Transform_Operation(NodeTransformer):
             isinstance(node.value.func, ast.Attribute) and \
             isinstance(node.value.func.value, ast.Name):
             #node.value.func.value.id in self.dataframes_ and 
-            
+            pdb.set_trace()
             if node.value.func.attr in implemented_functions:
                 var_name = node.targets[0].id
                 func_name = node.value.func.attr
@@ -143,27 +189,15 @@ class Transform_Operation(NodeTransformer):
                 new_assign = ast.Assign(targets=[ast.Name(id=var_name, ctx=ast.Store)], \
                                         value=ast.Call(func=ast.Name(id=func_name, ctx=ast.Load()), args=args, keywords=[]))
                 return new_assign
-            elif 
-
+        elif isinstance(node.value, ast.Call) and \
+            isinstance(node.value.func, ast.Attribute):
+            call = self.is_rdd_func(node.value)
+            if call:
+                var_name = node.targets[0].id
+                new_assign = ast.Assign(targets=[ast.Name(id=var_name, ctx=ast.Store)], value=call)
                 return new_assign
-            # elif node.value.func.value.func.value.attr == 'rdd' and \
-            #     node.value.func.value.func.attr in implemented_functions:
-            '''Call(func=
-                    Attribute(value=
-                                Call(func=
-                                        Attribute(value=
-                                                        Attribute(value=
-                                                                    Name(id='df'), 
-                                                                attr='rdd'),
-                                                    attr='map'
-                                                    ), 
-                                    args=[]), 
-                                attr='toDF'
-                            ),
-                    args=[])
-            '''
-        else:
-            return node
+                
+        return node
 
 def translate_spark_program(program : str, target_path=None, get_tree=False, sample_type='random', sample_args=None):
     '''
