@@ -2,7 +2,7 @@ from pyspark.sql.functions import col, asc, desc
 from functools import reduce
 from itertools import groupby
 from operator import (itemgetter, add)
-import pandas 
+import pandas, numpy
 
 ### Translation APIs ###
 ## basic operations on dataframes ##
@@ -51,14 +51,14 @@ def min(df, col):
         ps_result: pyspark dataframe after taken min
     '''
     # run min on pyspark dataframe
-    ps_result = df.groupBy().min(col)
-
+    ps_result = df.select(df[col]).groupBy().min()
+    
     # run min on pandas dataframe
     pd_df = df.toPandas()
     pd_result = pd_df.groupby(col).min()
 
     # compare results from pyspark and pandas
-    compare(ps_result, pd_result, "average")
+    compare(ps_result.collect()[0], pd_result, "min")
 
     return ps_result
 
@@ -72,14 +72,13 @@ def max(df, col):
         ps_result: pyspark dataframe after taken max
     '''
     # run max on pyspark dataframe
-    ps_result = df.groupBy().max(col)
+    ps_result = df.select(df[col]).groupBy().max()
 
     # run max on pandas dataframe
     pd_df = df.toPandas()
-    pd_result = pd_df.groupby(col).max()
-
+    pd_result = pd_df[col].max()
     # compare results from pyspark and pandas
-    compare(ps_result, pd_result, "average")
+    compare(ps_result.collect()[0], pd_result, col)
 
     return ps_result
 
@@ -114,9 +113,14 @@ def map(df, func, schema):
     Return: 
         ps_result: result after grouping pyspark dataframe
     '''
-    ps_result = df.rdd.map(lambda x: func(x)).toDF(schema)
-    pd_result = df.toPandas().apply(lambda x: func(x), axis=1)
-    pd_result.rename(columns=schema, inplace=True)
+    ps_result = df.rdd.map(func).toDF(schema)
+    # ps_result.show()
+    
+    pd_result = df.toPandas().apply(func, axis=1)
+    pd_result = pandas.DataFrame(pandas.DataFrame(numpy.vstack(pd_result), columns=schema))
+    # print(pd_result)
+    
+    # pd_result.rename(columns=, inplace=True)
     compare(ps_result, pd_result, 'map')
 
     return ps_result
@@ -184,7 +188,8 @@ def average(df, col):
         ps_result: pyspark dataframe after average
     '''
     # run average on pyspark dataframe
-    ps_result = df.groupBy().avg(col)
+    # run min on pyspark dataframe
+    ps_result = df.select(df[col]).groupBy().avg()
 
     # run average on pandas dataframe
     pd_df = df.toPandas()
@@ -192,7 +197,6 @@ def average(df, col):
 
     # compare results from pyspark and pandas
     compare(ps_result, pd_result, "average")
-
     return ps_result
 
 
@@ -281,13 +285,13 @@ def filter(df, condition: str):
 
 ## utility functions ##
 def compare(ps_result, pd_result, f_name):
-    if isinstance(pd_result, pandas.dataFrame):
+    if isinstance(pd_result, pandas.core.frame.DataFrame):
         ps_m_result = ps_result.toPandas()
-        comparison = pd_result.equals(ps_m_result)
+        comparison = pd_result.compare(ps_m_result).empty
     else:
         comparison = (ps_result == pd_result)
     # raise assertion error if not equal
     if not comparison:
-        print(ps_result)
-        print(pd_result)
+        print("pyspark result: ",ps_m_result,type(ps_m_result))
+        print("pandas result: ",pd_result, type(pd_result))
         raise AssertionError("Potential error in %s" % f_name)

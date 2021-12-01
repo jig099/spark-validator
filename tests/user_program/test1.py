@@ -95,22 +95,26 @@ class Transform_Operation(NodeTransformer):
         else:
             return node
 
-tree = ast.parse(open('tests/user_program/test_program1.py').read())
-'''
-print(tree.body)
-print(tree.body[1].body[1].targets[0].id)
-print(type(tree.body[1].body[1].targets[0].ctx))
-assert(isinstance(tree.body[1].body[1].targets[0].ctx, ast.Store))
-#print(ast.dump(tree))
-assert(isinstance(tree.body[1], ast.FunctionDef))
+def translate_spark_program(program):
+    '''
+    input: program can be either a 
+    '''
+    tree = ast.parse(open('tests/user_program/test_program1.py').read())
+    '''
+    print(tree.body)
+    print(tree.body[1].body[1].targets[0].id)
+    print(type(tree.body[1].body[1].targets[0].ctx))
+    assert(isinstance(tree.body[1].body[1].targets[0].ctx, ast.Store))
+    #print(ast.dump(tree))
+    assert(isinstance(tree.body[1], ast.FunctionDef))
 
-print(ast.dump(tree))
-'''
-t1 = Transform_Read()
-new_tree = fix_missing_locations(t1.visit(tree))
-print(astunparse.unparse(new_tree))
-print(t1.dataframes_)
-t2 = Transform_Operation(t1.dataframes_)
-new_tree = fix_missing_locations(t2.visit(new_tree))
-print(astunparse.unparse(new_tree))
+    print(ast.dump(tree))
+    '''
+    t1 = Transform_Read()
+    new_tree = fix_missing_locations(t1.visit(tree))
+    print(astunparse.unparse(new_tree))
+    print(t1.dataframes_)
+    t2 = Transform_Operation(t1.dataframes_)
+    new_tree = fix_missing_locations(t2.visit(new_tree))
+    print(astunparse.unparse(new_tree))
 
